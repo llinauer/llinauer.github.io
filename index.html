@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Linus Linauer</title>
+    <meta name="description" content="Personal website of Linus Linauer" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="hero">
+      <h1>Hi, I’m Linus 👋</h1>
+      <p>
+        I build things with code, explore ideas, and share what I’m learning.
+      </p>
+      <a class="btn" href="https://github.com/llinauer" target="_blank" rel="noreferrer">GitHub</a>
+    </header>
+
+    <main>
+      <section>
+        <h2>About</h2>
+        <p>
+          Welcome to my corner of the internet. This site is hosted on GitHub Pages.
+        </p>
+      </section>
+
+      <section>
+        <h2>Projects</h2>
+        <ul>
+          <li><a href="https://github.com/llinauer/austro_bird_classifier" target="_blank" rel="noreferrer">austro_bird_classifier</a></li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Contact</h2>
+        <p>
+          Find me on <a href="https://github.com/llinauer" target="_blank" rel="noreferrer">GitHub</a>.
+        </p>
+      </section>
+    </main>
+
+    <footer>
+      <small>© <span id="year"></span> Linus Linauer</small>
+    </footer>
+
+    <script>
+      document.getElementById('year').textContent = new Date().getFullYear();
+    </script>
+  </body>
+</html>
