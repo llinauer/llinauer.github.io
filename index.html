@@ -13,70 +13,77 @@
 
     <main class="container">
       <section class="panel about">
-        <p class="eyebrow">ABOUT ME</p>
-        <h1>Hi, I’m Lukas Linauer</h1>
-        <p>
-          I like building practical software, experimenting with AI, and shipping small ideas quickly.
-          This page pulls my repositories directly from GitHub.
-        </p>
+        <img class="avatar" src="https://github.com/llinauer.png" alt="Lukas Linauer profile picture" />
+        <div>
+          <p class="eyebrow">ABOUT ME</p>
+          <h1>Hi, I’m Lukas Linauer</h1>
+          <p>
+            I like building practical software, experimenting with AI, and shipping ideas quickly.
+          </p>
+        </div>
       </section>
 
       <section class="panel repos">
         <div class="repos-head">
           <p class="eyebrow">PROJECTS</p>
-          <h2>My Repositories</h2>
+          <h2>Selected Repositories</h2>
+          <p class="hint">
+            Edit the <code>SELECTED_REPOS</code> list in <code>index.html</code> to choose which repos are shown.
+            Put custom thumbnail files into <code>/thumbnails/</code> using the repo name, e.g. <code>thumbnails/fft_net.jpg</code>.
+          </p>
         </div>
 
         <div id="repo-grid" class="repo-grid" aria-live="polite"></div>
-        <p id="status" class="status">Loading repositories…</p>
       </section>
     </main>
 
     <script>
       const USERNAME = 'llinauer';
 
+      // 👇 EDIT THIS LIST: only these repos will be displayed, in this order.
+      const SELECTED_REPOS = [
+        'fft_net',
+        'ner_debugger',
+        'ner_visualizer',
+        'matmul_mojo',
+        'austro_bird_classifier',
+        'miniGPT'
+      ];
+
+      const PLACEHOLDER_THUMB = 'thumbnails/placeholder.svg';
+
+      function thumbnailFor(repoName) {
+        return `thumbnails/${repoName}.jpg`;
+      }
+
+      async function repoExists(repoName) {
+        const res = await fetch(`https://api.github.com/repos/${USERNAME}/${repoName}`);
+        return res.ok;
+      }
+
+      function renderRepoCard(repoName) {
+        const link = `https://github.com/${USERNAME}/${repoName}`;
+        const imgSrc = thumbnailFor(repoName);
+        return `
+          <article class="repo-card">
+            <a href="${link}" target="_blank" rel="noreferrer" aria-label="Open ${repoName} on GitHub">
+              <img class="thumb" src="${imgSrc}" alt="${repoName} thumbnail"
+                   onerror="this.onerror=null;this.src='${PLACEHOLDER_THUMB}'" loading="lazy" />
+              <div class="repo-meta">
+                <h3>${repoName}</h3>
+              </div>
+            </a>
+          </article>
+        `;
+      }
+
       async function loadRepos() {
         const grid = document.getElementById('repo-grid');
-        const status = document.getElementById('status');
 
-        try {
-          const res = await fetch(`https://api.github.com/users/${USERNAME}/repos?per_page=100&sort=updated`);
-          if (!res.ok) throw new Error('Failed to fetch repositories');
+        const checks = await Promise.all(SELECTED_REPOS.map(repoExists));
+        const validRepos = SELECTED_REPOS.filter((_, i) => checks[i]);
 
-          /** @type {Array<{name:string,html_url:string,description:string,stargazers_count:number,fork:boolean,owner:{login:string}}>} */
-          const repos = await res.json();
-
-          const filtered = repos
-            .filter((r) => !r.fork)
-            .sort((a, b) => b.stargazers_count - a.stargazers_count || a.name.localeCompare(b.name));
-
-          if (!filtered.length) {
-            status.textContent = 'No repositories found.';
-            return;
-          }
-
-          grid.innerHTML = filtered
-            .map((repo) => {
-              const thumb = `https://opengraph.githubassets.com/1/${repo.owner.login}/${repo.name}`;
-              const desc = repo.description ? repo.description.replace(/</g, '&lt;').replace(/>/g, '&gt;') : 'No description yet.';
-              return `
-                <article class="repo-card">
-                  <a href="${repo.html_url}" target="_blank" rel="noreferrer" aria-label="Open ${repo.name} on GitHub">
-                    <img class="thumb" src="${thumb}" alt="${repo.name} repository preview" loading="lazy" />
-                    <div class="repo-meta">
-                      <h3>${repo.name}</h3>
-                      <p>${desc}</p>
-                    </div>
-                  </a>
-                </article>
-              `;
-            })
-            .join('');
-
-          status.textContent = `${filtered.length} repositories shown.`;
-        } catch (err) {
-          status.textContent = 'Could not load repositories right now. Please refresh later.';
-        }
+        grid.innerHTML = validRepos.map(renderRepoCard).join('');
       }
 
       loadRepos();
