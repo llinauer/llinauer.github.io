@@ -1,10 +1,6 @@
 :root {
-  --bg1: #0a0f1f;
-  --bg2: #121c3d;
-  --card: #111a33;
+  --bg: #0b1020;
   --text: #eef2ff;
-  --muted: #b7c1df;
-  --accent: #8ab4ff;
 }
 
 * { box-sizing: border-box; }
@@ -14,45 +10,26 @@ body {
   min-height: 100vh;
   display: grid;
   place-items: center;
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  background: var(--bg);
   color: var(--text);
-  background: radial-gradient(circle at 20% 20%, #1c2f66 0%, var(--bg1) 45%),
-              linear-gradient(180deg, var(--bg1), var(--bg2));
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
 }
 
 .wrap {
-  width: min(92vw, 760px);
-}
-
-.card {
-  background: color-mix(in oklab, var(--card), black 10%);
-  border: 1px solid #2a3a6e;
-  border-radius: 18px;
+  display: grid;
+  gap: 1rem;
+  place-items: center;
+  text-align: center;
   padding: 2rem;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
 }
 
-.badge {
-  margin: 0 0 0.6rem;
-  color: var(--accent);
-  font-weight: 700;
-  letter-spacing: 0.02em;
+.icon {
+  font-size: clamp(3rem, 10vw, 6rem);
+  line-height: 1;
 }
 
 h1 {
-  margin: 0 0 0.8rem;
-  font-size: clamp(1.9rem, 5vw, 3rem);
+  margin: 0;
+  font-size: clamp(1.6rem, 5vw, 3rem);
+  font-weight: 700;
 }
-
-p {
-  margin: 0 0 1rem;
-  color: var(--muted);
-}
-
-a {
-  color: var(--accent);
-  text-decoration: none;
-  font-weight: 600;
-}
-
-a:hover { text-decoration: underline; }
