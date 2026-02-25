@@ -28,8 +28,9 @@
           <p class="eyebrow">PROJECTS</p>
           <h2>Repositories</h2>
           <p class="hint">
-            Showing all public repos (6 per page). Put custom thumbnail files into <code>/thumbnails/</code>
-            using the repo name, e.g. <code>thumbnails/fft_net.jpg</code> or <code>thumbnails/fft_net.png</code>.
+            Control which repos appear on each page via <code>REPO_PAGES</code> in <code>index.html</code>.
+            Repos not listed there are appended automatically to extra pages (6 per page).
+            Put custom thumbnails into <code>/thumbnails/</code>, e.g. <code>thumbnails/fft_net.jpg</code> or <code>thumbnails/fft_net.png</code>.
           </p>
         </div>
 
@@ -48,7 +49,15 @@
       const PER_PAGE = 6;
       const PLACEHOLDER_THUMB = 'thumbnails/placeholder.svg';
 
+      // Optional manual page layout (in order). Max 6 repos per inner list is recommended.
+      // Repos not listed here will be auto-appended to extra pages.
+      const REPO_PAGES = [
+        // ['fft_net', 'ner_debugger', 'ner_visualizer', 'matmul_mojo', 'austro_bird_classifier', 'miniGPT'],
+        // ['some_other_repo']
+      ];
+
       let allRepos = [];
+      let pagedRepos = [];
       let currentPage = 1;
 
       function thumbnailFor(repoName, ext = 'jpg') {
@@ -94,14 +103,38 @@
         `;
       }
 
+      function buildPagedRepos(allRepoNames) {
+        const existing = new Set(allRepoNames);
+        const used = new Set();
+        const manualPages = [];
+
+        for (const page of REPO_PAGES) {
+          const validPage = [];
+          for (const repo of page) {
+            if (!existing.has(repo) || used.has(repo)) continue;
+            validPage.push(repo);
+            used.add(repo);
+          }
+          if (validPage.length > 0) manualPages.push(validPage.slice(0, PER_PAGE));
+        }
+
+        const leftovers = allRepoNames.filter(name => !used.has(name));
+        const autoPages = [];
+        for (let i = 0; i < leftovers.length; i += PER_PAGE) {
+          autoPages.push(leftovers.slice(i, i + PER_PAGE));
+        }
+
+        const pages = [...manualPages, ...autoPages];
+        return pages.length ? pages : [[]];
+      }
+
       function totalPages() {
-        return Math.max(1, Math.ceil(allRepos.length / PER_PAGE));
+        return Math.max(1, pagedRepos.length);
       }
 
       function renderPage() {
         const grid = document.getElementById('repo-grid');
-        const start = (currentPage - 1) * PER_PAGE;
-        const reposForPage = allRepos.slice(start, start + PER_PAGE);
+        const reposForPage = pagedRepos[currentPage - 1] || [];
 
         grid.innerHTML = reposForPage.map(renderRepoCard).join('');
         updatePager();
@@ -146,6 +179,7 @@
             .map(r => r.name)
             .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
 
+          pagedRepos = buildPagedRepos(allRepos);
           currentPage = 1;
           renderPage();
         } catch (err) {
