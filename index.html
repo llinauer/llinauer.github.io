@@ -29,7 +29,7 @@
           <h2>Selected Repositories</h2>
           <p class="hint">
             Edit the <code>SELECTED_REPOS</code> list in <code>index.html</code> to choose which repos are shown.
-            Put custom thumbnail files into <code>/thumbnails/</code> using the repo name, e.g. <code>thumbnails/fft_net.jpg</code>.
+            Put custom thumbnail files into <code>/thumbnails/</code> using the repo name, e.g. <code>thumbnails/fft_net.jpg</code> or <code>thumbnails/fft_net.png</code>.
           </p>
         </div>
 
@@ -52,8 +52,8 @@
 
       const PLACEHOLDER_THUMB = 'thumbnails/placeholder.svg';
 
-      function thumbnailFor(repoName) {
-        return `thumbnails/${repoName}.jpg`;
+      function thumbnailFor(repoName, ext = 'jpg') {
+        return `thumbnails/${repoName}.${ext}`;
       }
 
       async function repoExists(repoName) {
@@ -68,7 +68,7 @@
           <article class="repo-card">
             <a href="${link}" target="_blank" rel="noreferrer" aria-label="Open ${repoName} on GitHub">
               <img class="thumb" src="${imgSrc}" alt="${repoName} thumbnail"
-                   onerror="this.onerror=null;this.src='${PLACEHOLDER_THUMB}'" loading="lazy" />
+                   onerror="if(!this.dataset.fallback){this.dataset.fallback='png';this.src='${thumbnailFor(repoName, 'png')}';}else{this.onerror=null;this.src='${PLACEHOLDER_THUMB}';}" loading="lazy" />
               <div class="repo-meta">
                 <h3>${repoName}</h3>
               </div>
