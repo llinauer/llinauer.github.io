@@ -26,39 +26,56 @@
       <section class="panel repos">
         <div class="repos-head">
           <p class="eyebrow">PROJECTS</p>
-          <h2>Selected Repositories</h2>
+          <h2>Repositories</h2>
           <p class="hint">
-            Edit the <code>SELECTED_REPOS</code> list in <code>index.html</code> to choose which repos are shown.
-            Put custom thumbnail files into <code>/thumbnails/</code> using the repo name, e.g. <code>thumbnails/fft_net.jpg</code> or <code>thumbnails/fft_net.png</code>.
+            Showing all public repos (6 per page). Put custom thumbnail files into <code>/thumbnails/</code>
+            using the repo name, e.g. <code>thumbnails/fft_net.jpg</code> or <code>thumbnails/fft_net.png</code>.
           </p>
         </div>
 
         <div id="repo-grid" class="repo-grid" aria-live="polite"></div>
+        <div class="pager" aria-label="Repository pagination">
+          <button id="prev-page" type="button">← Prev</button>
+          <span id="page-info" class="page-info">Page 1 / 1</span>
+          <button id="next-page" type="button">Next →</button>
+        </div>
       </section>
     </main>
 
     <script>
       const USERNAME = 'llinauer';
 
-      // 👇 EDIT THIS LIST: only these repos will be displayed, in this order.
-      const SELECTED_REPOS = [
-        'fft_net',
-        'ner_debugger',
-        'ner_visualizer',
-        'matmul_mojo',
-        'austro_bird_classifier',
-        'miniGPT'
-      ];
-
+      const PER_PAGE = 6;
       const PLACEHOLDER_THUMB = 'thumbnails/placeholder.svg';
+
+      let allRepos = [];
+      let currentPage = 1;
 
       function thumbnailFor(repoName, ext = 'jpg') {
         return `thumbnails/${repoName}.${ext}`;
       }
 
-      async function repoExists(repoName) {
-        const res = await fetch(`https://api.github.com/repos/${USERNAME}/${repoName}`);
-        return res.ok;
+      async function fetchAllRepos() {
+        const repos = [];
+        let page = 1;
+
+        while (true) {
+          const res = await fetch(
+            `https://api.github.com/users/${USERNAME}/repos?per_page=100&page=${page}&sort=updated`
+          );
+
+          if (!res.ok) {
+            throw new Error(`Failed to load repos (HTTP ${res.status})`);
+          }
+
+          const batch = await res.json();
+          repos.push(...batch);
+
+          if (batch.length < 100) break;
+          page += 1;
+        }
+
+        return repos;
       }
 
       function renderRepoCard(repoName) {
@@ -77,15 +94,70 @@
         `;
       }
 
+      function totalPages() {
+        return Math.max(1, Math.ceil(allRepos.length / PER_PAGE));
+      }
+
+      function renderPage() {
+        const grid = document.getElementById('repo-grid');
+        const start = (currentPage - 1) * PER_PAGE;
+        const reposForPage = allRepos.slice(start, start + PER_PAGE);
+
+        grid.innerHTML = reposForPage.map(renderRepoCard).join('');
+        updatePager();
+      }
+
+      function updatePager() {
+        const prevBtn = document.getElementById('prev-page');
+        const nextBtn = document.getElementById('next-page');
+        const info = document.getElementById('page-info');
+        const pages = totalPages();
+
+        info.textContent = `Page ${currentPage} / ${pages}`;
+        prevBtn.disabled = currentPage <= 1;
+        nextBtn.disabled = currentPage >= pages;
+      }
+
+      function setupPager() {
+        const prevBtn = document.getElementById('prev-page');
+        const nextBtn = document.getElementById('next-page');
+
+        prevBtn.addEventListener('click', () => {
+          if (currentPage > 1) {
+            currentPage -= 1;
+            renderPage();
+          }
+        });
+
+        nextBtn.addEventListener('click', () => {
+          if (currentPage < totalPages()) {
+            currentPage += 1;
+            renderPage();
+          }
+        });
+      }
+
       async function loadRepos() {
         const grid = document.getElementById('repo-grid');
 
-        const checks = await Promise.all(SELECTED_REPOS.map(repoExists));
-        const validRepos = SELECTED_REPOS.filter((_, i) => checks[i]);
+        try {
+          const repos = await fetchAllRepos();
+          allRepos = repos
+            .map(r => r.name)
+            .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
 
-        grid.innerHTML = validRepos.map(renderRepoCard).join('');
+          currentPage = 1;
+          renderPage();
+        } catch (err) {
+          grid.innerHTML = '<p>Could not load repositories right now.</p>';
+          document.getElementById('page-info').textContent = 'Page 1 / 1';
+          document.getElementById('prev-page').disabled = true;
+          document.getElementById('next-page').disabled = true;
+          console.error(err);
+        }
       }
 
+      setupPager();
       loadRepos();
     </script>
   </body>
