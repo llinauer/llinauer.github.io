@@ -12,7 +12,7 @@ nav: home
     </p>
     <div class="about-actions">
       <a class="button-link" href="{{ '/projects.html' | relative_url }}">View Projects</a>
-      <a class="button-link button-link-secondary" href="{{ '/blog.html' | relative_url }}">Open Blog</a>
+      <a class="button-link button-link-secondary" href="{{ '/blog/' | relative_url }}">Open Blog</a>
     </div>
   </div>
 </section>
@@ -36,7 +36,7 @@ nav: home
       <h2>Latest writing</h2>
       <p class="hint">Newest posts first.</p>
     </div>
-    <a class="section-link" href="{{ '/blog.html' | relative_url }}">Open the blog</a>
+    <a class="section-link" href="{{ '/blog/' | relative_url }}">Open the blog</a>
   </div>
   <div class="post-list">
     {% for post in site.posts limit:3 %}
