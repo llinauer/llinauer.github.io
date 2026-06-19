@@ -22,7 +22,7 @@
         </a>
         <nav class="nav-links" aria-label="Primary">
           <a class="nav-link active" href="index.html">Home</a>
-          <a class="nav-link" href="#projects">Projects</a>
+          <a class="nav-link" href="projects.html">Projects</a>
           <a class="nav-link" href="blog.html">Blog</a>
         </nav>
       </header>
@@ -36,50 +36,87 @@
             Tech enthusiast, interested in AI/ML, Python, Linux, Physics and Statistics.
           </p>
           <div class="about-actions">
-            <a class="button-link" href="#projects">View Projects</a>
+            <a class="button-link" href="projects.html">View Projects</a>
             <a class="button-link button-link-secondary" href="blog.html">Open Blog</a>
           </div>
         </div>
       </section>
 
-      <section id="projects" class="panel repos">
-        <div class="repos-head">
-          <p class="eyebrow">PROJECTS</p>
-          <h2>Repositories</h2>
-          <p class="hint">
-            Control which repos appear on each page via <code>REPO_PAGES</code> in <code>index.html</code>.
-            Repos not listed there are appended automatically to extra pages (6 per page).
-            Put custom thumbnails into <code>/thumbnails/</code>, e.g. <code>thumbnails/fft_net.jpg</code> or <code>thumbnails/fft_net.png</code>.
-          </p>
+      <section class="panel preview-section">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">PROJECTS</p>
+            <h2>Featured work</h2>
+            <p class="hint">A quick look at the top three projects.</p>
+          </div>
+          <a class="section-link" href="projects.html">See all projects</a>
         </div>
+        <div id="featured-projects" class="repo-grid" aria-live="polite"></div>
+      </section>
 
-        <div id="repo-grid" class="repo-grid" aria-live="polite"></div>
-        <div class="pager" aria-label="Repository pagination">
-          <button id="prev-page" type="button">← Prev</button>
-          <span id="page-info" class="page-info">Page 1 / 1</span>
-          <button id="next-page" type="button">Next →</button>
+      <section class="panel preview-section">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">BLOG</p>
+            <h2>Latest writing</h2>
+            <p class="hint">Newest posts first.</p>
+          </div>
+          <a class="section-link" href="blog.html">Open the blog</a>
         </div>
+        <div id="latest-posts" class="post-list"></div>
       </section>
     </main>
 
     <script>
       const USERNAME = 'llinauer';
-
-      const PER_PAGE = 6;
       const PLACEHOLDER_THUMB = 'thumbnails/placeholder.svg';
-
-      // Optional manual page layout (in order). Max 6 repos per inner list is recommended.
-      // Repos not listed here will be auto-appended to extra pages.
-      const REPO_PAGES = [
-        ['miniGPT', 'austro_bird_classifier', 'rnn_101', 'matmul_mojo', 'fft_net', 'fft_vis']
+      const FEATURED_PROJECTS = ['miniGPT', 'austro_bird_classifier', 'rnn_101'];
+      const BLOG_POSTS = [
+        {
+          title: 'Internalizing the F1 metric',
+          href: 'blog/internalizing-the-f1-metric.html',
+          date: '2026-06-19',
+          status: 'Draft',
+          excerpt: 'An empty draft page is in place and ready for the actual writeup.'
+        }
       ];
-
-      let allRepos = [];
-      let pagedRepos = [];
-      let currentPage = 1;
 
       function thumbnailFor(repoName, ext = 'jpg') {
         return `thumbnails/${repoName}.${ext}`;
+      }
+
+      function formatDate(dateString) {
+        return new Date(`${dateString}T00:00:00Z`).toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        });
+      }
+
+      function renderRepoCard(repoName) {
+        const link = `https://github.com/${USERNAME}/${repoName}`;
+        const imgSrc = thumbnailFor(repoName);
+        return `
+          <article class="repo-card">
+            <a href="${link}" target="_blank" rel="noreferrer" aria-label="Open ${repoName} on GitHub">
+              <img class="thumb" src="${imgSrc}" alt="${repoName} thumbnail"
+                   onerror="if(!this.dataset.fallback){this.dataset.fallback='png';this.src='${thumbnailFor(repoName, 'png')}';}else{this.onerror=null;this.src='${PLACEHOLDER_THUMB}';}" loading="lazy" />
+              <div class="repo-meta">
+                <h3>${repoName}</h3>
+              </div>
+            </a>
+          </article>
+        `;
+      }
+
+      function renderPostCard(post) {
+        return `
+          <article class="post-card">
+            <p class="post-date">${formatDate(post.date)} · ${post.status}</p>
+            <h3><a class="post-link" href="${post.href}">${post.title}</a></h3>
+            <p>${post.excerpt}</p>
+          </article>
+        `;
       }
 
       async function fetchAllRepos() {
@@ -105,112 +142,36 @@
         return repos;
       }
 
-      function renderRepoCard(repoName) {
-        const link = `https://github.com/${USERNAME}/${repoName}`;
-        const imgSrc = thumbnailFor(repoName);
-        return `
-          <article class="repo-card">
-            <a href="${link}" target="_blank" rel="noreferrer" aria-label="Open ${repoName} on GitHub">
-              <img class="thumb" src="${imgSrc}" alt="${repoName} thumbnail"
-                   onerror="if(!this.dataset.fallback){this.dataset.fallback='png';this.src='${thumbnailFor(repoName, 'png')}';}else{this.onerror=null;this.src='${PLACEHOLDER_THUMB}';}" loading="lazy" />
-              <div class="repo-meta">
-                <h3>${repoName}</h3>
-              </div>
-            </a>
-          </article>
-        `;
-      }
-
-      function buildPagedRepos(allRepoNames) {
-        const existing = new Set(allRepoNames);
-        const used = new Set();
-        const manualPages = [];
-
-        for (const page of REPO_PAGES) {
-          const validPage = [];
-          for (const repo of page) {
-            if (!existing.has(repo) || used.has(repo)) continue;
-            validPage.push(repo);
-            used.add(repo);
-          }
-          if (validPage.length > 0) manualPages.push(validPage.slice(0, PER_PAGE));
-        }
-
-        const leftovers = allRepoNames.filter(name => !used.has(name));
-        const autoPages = [];
-        for (let i = 0; i < leftovers.length; i += PER_PAGE) {
-          autoPages.push(leftovers.slice(i, i + PER_PAGE));
-        }
-
-        const pages = [...manualPages, ...autoPages];
-        return pages.length ? pages : [[]];
-      }
-
-      function totalPages() {
-        return Math.max(1, pagedRepos.length);
-      }
-
-      function renderPage() {
-        const grid = document.getElementById('repo-grid');
-        const reposForPage = pagedRepos[currentPage - 1] || [];
-
-        grid.innerHTML = reposForPage.map(renderRepoCard).join('');
-        updatePager();
-      }
-
-      function updatePager() {
-        const prevBtn = document.getElementById('prev-page');
-        const nextBtn = document.getElementById('next-page');
-        const info = document.getElementById('page-info');
-        const pages = totalPages();
-
-        info.textContent = `Page ${currentPage} / ${pages}`;
-        prevBtn.disabled = currentPage <= 1;
-        nextBtn.disabled = currentPage >= pages;
-      }
-
-      function setupPager() {
-        const prevBtn = document.getElementById('prev-page');
-        const nextBtn = document.getElementById('next-page');
-
-        prevBtn.addEventListener('click', () => {
-          if (currentPage > 1) {
-            currentPage -= 1;
-            renderPage();
-          }
-        });
-
-        nextBtn.addEventListener('click', () => {
-          if (currentPage < totalPages()) {
-            currentPage += 1;
-            renderPage();
-          }
-        });
-      }
-
-      async function loadRepos() {
-        const grid = document.getElementById('repo-grid');
+      async function loadFeaturedProjects() {
+        const grid = document.getElementById('featured-projects');
 
         try {
           const repos = await fetchAllRepos();
-          allRepos = repos
-            .map(r => r.name)
-            .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+          const names = new Set(repos.map(repo => repo.name));
+          const featured = FEATURED_PROJECTS.filter(name => names.has(name));
 
-          pagedRepos = buildPagedRepos(allRepos);
-          currentPage = 1;
-          renderPage();
+          grid.innerHTML = featured.map(renderRepoCard).join('');
+
+          if (!featured.length) {
+            grid.innerHTML = '<p>Could not find the featured repositories right now.</p>';
+          }
         } catch (err) {
           grid.innerHTML = '<p>Could not load repositories right now.</p>';
-          document.getElementById('page-info').textContent = 'Page 1 / 1';
-          document.getElementById('prev-page').disabled = true;
-          document.getElementById('next-page').disabled = true;
           console.error(err);
         }
       }
 
-      setupPager();
-      loadRepos();
+      function loadLatestPosts() {
+        const container = document.getElementById('latest-posts');
+        const latest = [...BLOG_POSTS]
+          .sort((a, b) => new Date(b.date) - new Date(a.date))
+          .slice(0, 3);
+
+        container.innerHTML = latest.map(renderPostCard).join('');
+      }
+
+      loadFeaturedProjects();
+      loadLatestPosts();
     </script>
   </body>
 </html>

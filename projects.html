@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Projects | Lukas Linauer</title>
+    <meta name="description" content="Projects by Lukas Linauer" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="bg-glow bg-glow-a" aria-hidden="true"></div>
+    <div class="bg-glow bg-glow-b" aria-hidden="true"></div>
+
+    <main class="container">
+      <header class="site-nav panel">
+        <a class="brand" href="index.html" aria-label="Lukas Linauer home">
+          <span class="brand-mark" aria-hidden="true">LL</span>
+          <span class="brand-copy">
+            <span class="brand-name">Lukas Linauer</span>
+            <span class="brand-tag">Projects, notes, and experiments</span>
+          </span>
+        </a>
+        <nav class="nav-links" aria-label="Primary">
+          <a class="nav-link" href="index.html">Home</a>
+          <a class="nav-link active" href="projects.html">Projects</a>
+          <a class="nav-link" href="blog.html">Blog</a>
+        </nav>
+      </header>
+
+      <section class="panel about">
+        <div>
+          <p class="eyebrow">PROJECTS</p>
+          <h1>Repositories and experiments</h1>
+          <p>
+            A dedicated overview of GitHub projects, with the featured order pinned first.
+          </p>
+        </div>
+      </section>
+
+      <section class="panel repos">
+        <div class="repos-head">
+          <p class="eyebrow">ALL PROJECTS</p>
+          <h2>Repository index</h2>
+          <p class="hint">
+            Featured repositories stay first via <code>REPO_PAGES</code>. Remaining repositories are appended automatically, six per page.
+          </p>
+        </div>
+
+        <div id="repo-grid" class="repo-grid" aria-live="polite"></div>
+        <div class="pager" aria-label="Repository pagination">
+          <button id="prev-page" type="button">← Prev</button>
+          <span id="page-info" class="page-info">Page 1 / 1</span>
+          <button id="next-page" type="button">Next →</button>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const USERNAME = 'llinauer';
+      const PER_PAGE = 6;
+      const PLACEHOLDER_THUMB = 'thumbnails/placeholder.svg';
+      const REPO_PAGES = [
+        ['miniGPT', 'austro_bird_classifier', 'rnn_101', 'matmul_mojo', 'fft_net', 'fft_vis']
+      ];
+
+      let pagedRepos = [];
+      let currentPage = 1;
+
+      function thumbnailFor(repoName, ext = 'jpg') {
+        return `thumbnails/${repoName}.${ext}`;
+      }
+
+      async function fetchAllRepos() {
+        const repos = [];
+        let page = 1;
+
+        while (true) {
+          const res = await fetch(
+            `https://api.github.com/users/${USERNAME}/repos?per_page=100&page=${page}&sort=updated`
+          );
+
+          if (!res.ok) {
+            throw new Error(`Failed to load repos (HTTP ${res.status})`);
+          }
+
+          const batch = await res.json();
+          repos.push(...batch);
+
+          if (batch.length < 100) break;
+          page += 1;
+        }
+
+        return repos;
+      }
+
+      function renderRepoCard(repoName) {
+        const link = `https://github.com/${USERNAME}/${repoName}`;
+        const imgSrc = thumbnailFor(repoName);
+        return `
+          <article class="repo-card">
+            <a href="${link}" target="_blank" rel="noreferrer" aria-label="Open ${repoName} on GitHub">
+              <img class="thumb" src="${imgSrc}" alt="${repoName} thumbnail"
+                   onerror="if(!this.dataset.fallback){this.dataset.fallback='png';this.src='${thumbnailFor(repoName, 'png')}';}else{this.onerror=null;this.src='${PLACEHOLDER_THUMB}';}" loading="lazy" />
+              <div class="repo-meta">
+                <h3>${repoName}</h3>
+              </div>
+            </a>
+          </article>
+        `;
+      }
+
+      function buildPagedRepos(allRepoNames) {
+        const existing = new Set(allRepoNames);
+        const used = new Set();
+        const manualPages = [];
+
+        for (const page of REPO_PAGES) {
+          const validPage = [];
+          for (const repo of page) {
+            if (!existing.has(repo) || used.has(repo)) continue;
+            validPage.push(repo);
+            used.add(repo);
+          }
+          if (validPage.length > 0) manualPages.push(validPage.slice(0, PER_PAGE));
+        }
+
+        const leftovers = allRepoNames.filter(name => !used.has(name));
+        const autoPages = [];
+        for (let i = 0; i < leftovers.length; i += PER_PAGE) {
+          autoPages.push(leftovers.slice(i, i + PER_PAGE));
+        }
+
+        const pages = [...manualPages, ...autoPages];
+        return pages.length ? pages : [[]];
+      }
+
+      function totalPages() {
+        return Math.max(1, pagedRepos.length);
+      }
+
+      function updatePager() {
+        const prevBtn = document.getElementById('prev-page');
+        const nextBtn = document.getElementById('next-page');
+        const info = document.getElementById('page-info');
+        const pages = totalPages();
+
+        info.textContent = `Page ${currentPage} / ${pages}`;
+        prevBtn.disabled = currentPage <= 1;
+        nextBtn.disabled = currentPage >= pages;
+      }
+
+      function renderPage() {
+        const grid = document.getElementById('repo-grid');
+        const reposForPage = pagedRepos[currentPage - 1] || [];
+
+        grid.innerHTML = reposForPage.map(renderRepoCard).join('');
+        updatePager();
+      }
+
+      function setupPager() {
+        document.getElementById('prev-page').addEventListener('click', () => {
+          if (currentPage > 1) {
+            currentPage -= 1;
+            renderPage();
+          }
+        });
+
+        document.getElementById('next-page').addEventListener('click', () => {
+          if (currentPage < totalPages()) {
+            currentPage += 1;
+            renderPage();
+          }
+        });
+      }
+
+      async function loadRepos() {
+        const grid = document.getElementById('repo-grid');
+
+        try {
+          const repos = await fetchAllRepos();
+          const allRepos = repos
+            .map(repo => repo.name)
+            .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+
+          pagedRepos = buildPagedRepos(allRepos);
+          currentPage = 1;
+          renderPage();
+        } catch (err) {
+          grid.innerHTML = '<p>Could not load repositories right now.</p>';
+          document.getElementById('page-info').textContent = 'Page 1 / 1';
+          document.getElementById('prev-page').disabled = true;
+          document.getElementById('next-page').disabled = true;
+          console.error(err);
+        }
+      }
+
+      setupPager();
+      loadRepos();
+    </script>
+  </body>
+</html>

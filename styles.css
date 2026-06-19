@@ -201,6 +201,32 @@ code { color: #d5ccff; }
 
 .repos-head { margin-bottom: .9rem; }
 
+.preview-section {
+  display: grid;
+  gap: 1rem;
+}
+
+.section-head {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.section-link {
+  color: var(--text);
+  text-decoration: none;
+  font-weight: 600;
+  padding: 0.45rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid rgba(154, 137, 255, 0.28);
+  background: rgba(31, 27, 67, 0.5);
+}
+
+.section-link:hover {
+  background: rgba(42, 37, 92, 0.7);
+}
+
 .repo-grid {
   display: grid;
   gap: .85rem;
@@ -241,6 +267,11 @@ code { color: #d5ccff; }
   border-radius: .9rem;
   background: linear-gradient(180deg, rgba(35, 31, 79, 0.65), rgba(20, 18, 49, 0.65));
   padding: 1rem;
+}
+
+.post-list {
+  display: grid;
+  gap: 0.85rem;
 }
 
 .post-link {
@@ -299,6 +330,10 @@ code { color: #d5ccff; }
 
 @media (max-width: 640px) {
   .site-nav {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .section-head {
     align-items: flex-start;
     flex-direction: column;
   }

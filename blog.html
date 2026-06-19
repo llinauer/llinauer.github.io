@@ -22,7 +22,7 @@
         </a>
         <nav class="nav-links" aria-label="Primary">
           <a class="nav-link" href="index.html">Home</a>
-          <a class="nav-link" href="index.html#projects">Projects</a>
+          <a class="nav-link" href="projects.html">Projects</a>
           <a class="nav-link active" href="blog.html">Blog</a>
         </nav>
       </header>
@@ -32,7 +32,7 @@
           <p class="eyebrow">BLOG</p>
           <h1>Notes, experiments, and writeups</h1>
           <p>
-            This is the blog section of the site. The first article goes here next.
+            A separate home for articles, ordered newest first.
           </p>
         </div>
       </section>
@@ -40,18 +40,52 @@
       <section class="panel repos">
         <div class="repos-head">
           <p class="eyebrow">ARTICLES</p>
-          <h2>First post</h2>
+          <h2>All posts</h2>
           <p class="hint">
-            The blog now has its first article slot. We can fill in the content whenever you are ready.
+            Latest posts appear first.
           </p>
         </div>
 
-        <article class="post-card">
-          <p class="post-date">Draft</p>
-          <h3><a class="post-link" href="blog/internalizing-the-f1-metric.html">Internalizing the F1 metric</a></h3>
-          <p>An empty draft page is in place and ready for the actual writeup.</p>
-        </article>
+        <div id="blog-posts" class="post-list"></div>
       </section>
     </main>
+
+    <script>
+      const BLOG_POSTS = [
+        {
+          title: 'Internalizing the F1 metric',
+          href: 'blog/internalizing-the-f1-metric.html',
+          date: '2026-06-19',
+          status: 'Draft',
+          excerpt: 'An empty draft page is in place and ready for the actual writeup.'
+        }
+      ];
+
+      function formatDate(dateString) {
+        return new Date(`${dateString}T00:00:00Z`).toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        });
+      }
+
+      function renderPostCard(post) {
+        return `
+          <article class="post-card">
+            <p class="post-date">${formatDate(post.date)} · ${post.status}</p>
+            <h3><a class="post-link" href="${post.href}">${post.title}</a></h3>
+            <p>${post.excerpt}</p>
+          </article>
+        `;
+      }
+
+      function loadPosts() {
+        const container = document.getElementById('blog-posts');
+        const ordered = [...BLOG_POSTS].sort((a, b) => new Date(b.date) - new Date(a.date));
+        container.innerHTML = ordered.map(renderPostCard).join('');
+      }
+
+      loadPosts();
+    </script>
   </body>
 </html>
