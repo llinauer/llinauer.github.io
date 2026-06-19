@@ -51,11 +51,12 @@ nav: home
 
 <script>
       const USERNAME = 'llinauer';
-      const PLACEHOLDER_THUMB = 'thumbnails/placeholder.svg';
+      const THUMBNAIL_BASE = '{{ "/thumbnails" | relative_url }}';
+      const PLACEHOLDER_THUMB = `${THUMBNAIL_BASE}/placeholder.svg`;
       const FEATURED_PROJECTS = ['miniGPT', 'austro_bird_classifier', 'rnn_101'];
 
       function thumbnailFor(repoName, ext = 'jpg') {
-        return `thumbnails/${repoName}.${ext}`;
+        return `${THUMBNAIL_BASE}/${repoName}.${ext}`;
       }
 
       function renderRepoCard(repoName) {
