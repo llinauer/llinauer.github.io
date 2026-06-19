@@ -12,18 +12,31 @@
     <div class="bg-glow bg-glow-b" aria-hidden="true"></div>
 
     <main class="container">
+      <header class="site-nav panel">
+        <a class="brand" href="index.html">Lukas Linauer</a>
+        <nav class="nav-links" aria-label="Primary">
+          <a class="nav-link active" href="index.html">Home</a>
+          <a class="nav-link" href="#projects">Projects</a>
+          <a class="nav-link" href="blog.html">Blog</a>
+        </nav>
+      </header>
+
       <section class="panel about">
         <img class="avatar" src="https://github.com/llinauer.png" alt="Lukas Linauer profile picture" />
         <div>
           <p class="eyebrow">ABOUT ME</p>
           <h1>Hi, I’m Lukas Linauer</h1>
           <p>
-            I like building practical software, experimenting with AI, and shipping ideas quickly.
+            Tech enthusiast, interested in AI/ML, Python, Linux, Physics and Statistics.
           </p>
+          <div class="about-actions">
+            <a class="button-link" href="#projects">View Projects</a>
+            <a class="button-link button-link-secondary" href="blog.html">Open Blog</a>
+          </div>
         </div>
       </section>
 
-      <section class="panel repos">
+      <section id="projects" class="panel repos">
         <div class="repos-head">
           <p class="eyebrow">PROJECTS</p>
           <h2>Repositories</h2>

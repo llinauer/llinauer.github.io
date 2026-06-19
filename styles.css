@@ -52,6 +52,43 @@ body {
   padding: 1.35rem;
 }
 
+.site-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.brand {
+  color: var(--text);
+  text-decoration: none;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.nav-link {
+  color: var(--muted);
+  text-decoration: none;
+  padding: 0.45rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+.nav-link:hover,
+.nav-link.active {
+  color: var(--text);
+  border-color: rgba(154, 137, 255, 0.3);
+  background: rgba(31, 27, 67, 0.58);
+}
+
 .about {
   display: grid;
   grid-template-columns: auto 1fr;
@@ -84,6 +121,29 @@ h3 { font-size: 1rem; }
 p { margin: 0; color: var(--muted); }
 .hint { margin-top: .4rem; font-size: .9rem; }
 code { color: #d5ccff; }
+
+.about-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+
+.button-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.65rem 1rem;
+  border-radius: 999px;
+  color: var(--text);
+  text-decoration: none;
+  border: 1px solid rgba(154, 137, 255, 0.45);
+  background: linear-gradient(180deg, rgba(121, 179, 255, 0.25), rgba(161, 139, 255, 0.18));
+}
+
+.button-link-secondary {
+  background: rgba(31, 27, 67, 0.65);
+}
 
 .repos-head { margin-bottom: .9rem; }
 
@@ -122,6 +182,32 @@ code { color: #d5ccff; }
 
 .repo-meta { padding: .7rem .75rem .8rem; }
 
+.post-card {
+  border: 1px solid rgba(154, 137, 255, .22);
+  border-radius: .9rem;
+  background: linear-gradient(180deg, rgba(35, 31, 79, 0.65), rgba(20, 18, 49, 0.65));
+  padding: 1rem;
+}
+
+.post-link {
+  color: var(--text);
+  text-decoration: none;
+}
+
+.post-link:hover {
+  text-decoration: underline;
+}
+
+.post-date {
+  font-size: 0.85rem;
+  color: var(--accent-2);
+  margin-bottom: 0.45rem;
+}
+
+.post-shell {
+  min-height: 40vh;
+}
+
 .pager {
   margin-top: .95rem;
   display: flex;
@@ -158,6 +244,10 @@ code { color: #d5ccff; }
 }
 
 @media (max-width: 640px) {
+  .site-nav {
+    align-items: flex-start;
+    flex-direction: column;
+  }
   .about { grid-template-columns: 1fr; }
   .avatar { width: 84px; height: 84px; }
 }
