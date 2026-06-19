@@ -293,6 +293,17 @@ code { color: #d5ccff; }
   min-height: 40vh;
 }
 
+.post-content {
+  margin-top: 1rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.post-content p,
+.post-content li {
+  line-height: 1.7;
+}
+
 .pager {
   margin-top: .95rem;
   display: flex;

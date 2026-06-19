@@ -1,61 +1,37 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Projects | Lukas Linauer</title>
-    <meta name="description" content="Projects by Lukas Linauer" />
-    <link rel="stylesheet" href="styles.css" />
-  </head>
-  <body>
-    <div class="bg-glow bg-glow-a" aria-hidden="true"></div>
-    <div class="bg-glow bg-glow-b" aria-hidden="true"></div>
+---
+layout: default
+title: Projects
+description: Projects by Lukas Linauer
+nav: projects
+---
+<section class="panel about">
+  <div>
+    <p class="eyebrow">PROJECTS</p>
+    <h1>Repositories and experiments</h1>
+    <p>
+      A dedicated overview of GitHub projects, with the featured order pinned first.
+    </p>
+  </div>
+</section>
 
-    <main class="container">
-      <header class="site-nav panel">
-        <a class="brand" href="index.html" aria-label="Lukas Linauer home">
-          <span class="brand-mark" aria-hidden="true">LL</span>
-          <span class="brand-copy">
-            <span class="brand-name">Lukas Linauer</span>
-            <span class="brand-tag">Projects, notes, and experiments</span>
-          </span>
-        </a>
-        <nav class="nav-links" aria-label="Primary">
-          <a class="nav-link" href="index.html">Home</a>
-          <a class="nav-link active" href="projects.html">Projects</a>
-          <a class="nav-link" href="blog.html">Blog</a>
-        </nav>
-      </header>
+<section class="panel repos">
+  <div class="repos-head">
+    <p class="eyebrow">ALL PROJECTS</p>
+    <h2>Repository index</h2>
+    <p class="hint">
+      Featured repositories stay first via <code>REPO_PAGES</code>. Remaining repositories are appended automatically, six per page.
+    </p>
+  </div>
 
-      <section class="panel about">
-        <div>
-          <p class="eyebrow">PROJECTS</p>
-          <h1>Repositories and experiments</h1>
-          <p>
-            A dedicated overview of GitHub projects, with the featured order pinned first.
-          </p>
-        </div>
-      </section>
+  <div id="repo-grid" class="repo-grid" aria-live="polite"></div>
+  <div class="pager" aria-label="Repository pagination">
+    <button id="prev-page" type="button">← Prev</button>
+    <span id="page-info" class="page-info">Page 1 / 1</span>
+    <button id="next-page" type="button">Next →</button>
+  </div>
+</section>
 
-      <section class="panel repos">
-        <div class="repos-head">
-          <p class="eyebrow">ALL PROJECTS</p>
-          <h2>Repository index</h2>
-          <p class="hint">
-            Featured repositories stay first via <code>REPO_PAGES</code>. Remaining repositories are appended automatically, six per page.
-          </p>
-        </div>
-
-        <div id="repo-grid" class="repo-grid" aria-live="polite"></div>
-        <div class="pager" aria-label="Repository pagination">
-          <button id="prev-page" type="button">← Prev</button>
-          <span id="page-info" class="page-info">Page 1 / 1</span>
-          <button id="next-page" type="button">Next →</button>
-        </div>
-      </section>
-    </main>
-
-    <script>
+<script>
       const USERNAME = 'llinauer';
       const PER_PAGE = 6;
       const PLACEHOLDER_THUMB = 'thumbnails/placeholder.svg';
@@ -196,6 +172,4 @@
 
       setupPager();
       loadRepos();
-    </script>
-  </body>
-</html>
+</script>

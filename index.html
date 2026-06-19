@@ -1,96 +1,61 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Lukas Linauer</title>
-    <meta name="description" content="Personal website of Lukas Linauer" />
-    <link rel="stylesheet" href="styles.css" />
-  </head>
-  <body>
-    <div class="bg-glow bg-glow-a" aria-hidden="true"></div>
-    <div class="bg-glow bg-glow-b" aria-hidden="true"></div>
+---
+layout: default
+nav: home
+---
+<section class="panel about">
+  <img class="avatar" src="https://github.com/llinauer.png" alt="Lukas Linauer profile picture" />
+  <div>
+    <p class="eyebrow">ABOUT ME</p>
+    <h1>Hi, I’m Lukas Linauer</h1>
+    <p>
+      Tech enthusiast, interested in AI/ML, Python, Linux, Physics and Statistics.
+    </p>
+    <div class="about-actions">
+      <a class="button-link" href="{{ '/projects.html' | relative_url }}">View Projects</a>
+      <a class="button-link button-link-secondary" href="{{ '/blog.html' | relative_url }}">Open Blog</a>
+    </div>
+  </div>
+</section>
 
-    <main class="container">
-      <header class="site-nav panel">
-        <a class="brand" href="index.html" aria-label="Lukas Linauer home">
-          <span class="brand-mark" aria-hidden="true">LL</span>
-          <span class="brand-copy">
-            <span class="brand-name">Lukas Linauer</span>
-            <span class="brand-tag">Projects, notes, and experiments</span>
-          </span>
-        </a>
-        <nav class="nav-links" aria-label="Primary">
-          <a class="nav-link active" href="index.html">Home</a>
-          <a class="nav-link" href="projects.html">Projects</a>
-          <a class="nav-link" href="blog.html">Blog</a>
-        </nav>
-      </header>
+<section class="panel preview-section">
+  <div class="section-head">
+    <div>
+      <p class="eyebrow">PROJECTS</p>
+      <h2>Featured work</h2>
+      <p class="hint">A quick look at the top three projects.</p>
+    </div>
+    <a class="section-link" href="{{ '/projects.html' | relative_url }}">See all projects</a>
+  </div>
+  <div id="featured-projects" class="repo-grid" aria-live="polite"></div>
+</section>
 
-      <section class="panel about">
-        <img class="avatar" src="https://github.com/llinauer.png" alt="Lukas Linauer profile picture" />
-        <div>
-          <p class="eyebrow">ABOUT ME</p>
-          <h1>Hi, I’m Lukas Linauer</h1>
-          <p>
-            Tech enthusiast, interested in AI/ML, Python, Linux, Physics and Statistics.
-          </p>
-          <div class="about-actions">
-            <a class="button-link" href="projects.html">View Projects</a>
-            <a class="button-link button-link-secondary" href="blog.html">Open Blog</a>
-          </div>
-        </div>
-      </section>
+<section class="panel preview-section">
+  <div class="section-head">
+    <div>
+      <p class="eyebrow">BLOG</p>
+      <h2>Latest writing</h2>
+      <p class="hint">Newest posts first.</p>
+    </div>
+    <a class="section-link" href="{{ '/blog.html' | relative_url }}">Open the blog</a>
+  </div>
+  <div class="post-list">
+    {% for post in site.posts limit:3 %}
+    <article class="post-card">
+      <p class="post-date">{{ post.date | date: "%B %-d, %Y" }}{% if post.status %} · {{ post.status }}{% endif %}</p>
+      <h3><a class="post-link" href="{{ post.url | relative_url }}">{{ post.title }}</a></h3>
+      <p>{{ post.summary }}</p>
+    </article>
+    {% endfor %}
+  </div>
+</section>
 
-      <section class="panel preview-section">
-        <div class="section-head">
-          <div>
-            <p class="eyebrow">PROJECTS</p>
-            <h2>Featured work</h2>
-            <p class="hint">A quick look at the top three projects.</p>
-          </div>
-          <a class="section-link" href="projects.html">See all projects</a>
-        </div>
-        <div id="featured-projects" class="repo-grid" aria-live="polite"></div>
-      </section>
-
-      <section class="panel preview-section">
-        <div class="section-head">
-          <div>
-            <p class="eyebrow">BLOG</p>
-            <h2>Latest writing</h2>
-            <p class="hint">Newest posts first.</p>
-          </div>
-          <a class="section-link" href="blog.html">Open the blog</a>
-        </div>
-        <div id="latest-posts" class="post-list"></div>
-      </section>
-    </main>
-
-    <script>
+<script>
       const USERNAME = 'llinauer';
       const PLACEHOLDER_THUMB = 'thumbnails/placeholder.svg';
       const FEATURED_PROJECTS = ['miniGPT', 'austro_bird_classifier', 'rnn_101'];
-      const BLOG_POSTS = [
-        {
-          title: 'Internalizing the F1 metric',
-          href: 'blog/internalizing-the-f1-metric.html',
-          date: '2026-06-19',
-          status: 'Draft',
-          excerpt: 'An empty draft page is in place and ready for the actual writeup.'
-        }
-      ];
 
       function thumbnailFor(repoName, ext = 'jpg') {
         return `thumbnails/${repoName}.${ext}`;
-      }
-
-      function formatDate(dateString) {
-        return new Date(`${dateString}T00:00:00Z`).toLocaleDateString('en-US', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric'
-        });
       }
 
       function renderRepoCard(repoName) {
@@ -105,16 +70,6 @@
                 <h3>${repoName}</h3>
               </div>
             </a>
-          </article>
-        `;
-      }
-
-      function renderPostCard(post) {
-        return `
-          <article class="post-card">
-            <p class="post-date">${formatDate(post.date)} · ${post.status}</p>
-            <h3><a class="post-link" href="${post.href}">${post.title}</a></h3>
-            <p>${post.excerpt}</p>
           </article>
         `;
       }
@@ -161,17 +116,5 @@
         }
       }
 
-      function loadLatestPosts() {
-        const container = document.getElementById('latest-posts');
-        const latest = [...BLOG_POSTS]
-          .sort((a, b) => new Date(b.date) - new Date(a.date))
-          .slice(0, 3);
-
-        container.innerHTML = latest.map(renderPostCard).join('');
-      }
-
       loadFeaturedProjects();
-      loadLatestPosts();
-    </script>
-  </body>
-</html>
+</script>

@@ -1,0 +1,13 @@
+---
+layout: default
+nav: blog
+---
+<article class="panel post-shell">
+  <p class="eyebrow">
+    {% if page.status %}{{ page.status | upcase }} · {% endif %}{{ page.date | date: "%B %-d, %Y" | upcase }}
+  </p>
+  <h1>{{ page.title }}</h1>
+  <div class="post-content">
+    {{ content }}
+  </div>
+</article>

@@ -1,0 +1,4 @@
+title: Lukas Linauer
+description: Personal website of Lukas Linauer
+markdown: kramdown
+permalink: /blog/:title/
