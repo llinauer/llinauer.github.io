@@ -39,6 +39,15 @@ nav: projects
         return `${THUMBNAIL_BASE}/${repoName}.${ext}`;
       }
 
+      function escapeHtml(value = '') {
+        return value
+          .replaceAll('&', '&amp;')
+          .replaceAll('<', '&lt;')
+          .replaceAll('>', '&gt;')
+          .replaceAll('"', '&quot;')
+          .replaceAll("'", '&#39;');
+      }
+
       async function fetchAllRepos() {
         const repos = [];
         let page = 1;
@@ -62,9 +71,13 @@ nav: projects
         return repos;
       }
 
-      function renderRepoCard(repoName) {
+      function renderRepoCard(repo) {
+        const repoName = repo.name;
         const link = `https://github.com/${USERNAME}/${repoName}`;
         const imgSrc = thumbnailFor(repoName);
+        const description = repo.description
+          ? `<p class="repo-caption">${escapeHtml(repo.description)}</p>`
+          : '';
         return `
           <article class="repo-card">
             <a href="${link}" target="_blank" rel="noreferrer" aria-label="Open ${repoName} on GitHub">
@@ -72,14 +85,16 @@ nav: projects
                    onerror="if(!this.dataset.fallback){this.dataset.fallback='png';this.src='${thumbnailFor(repoName, 'png')}';}else{this.onerror=null;this.src='${PLACEHOLDER_THUMB}';}" loading="lazy" />
               <div class="repo-meta">
                 <h3>${repoName}</h3>
+                ${description}
               </div>
             </a>
           </article>
         `;
       }
 
-      function buildPagedRepos(allRepoNames) {
-        const existing = new Set(allRepoNames);
+      function buildPagedRepos(allRepos) {
+        const repoByName = new Map(allRepos.map(repo => [repo.name, repo]));
+        const existing = new Set(repoByName.keys());
         const used = new Set();
         const manualPages = [];
 
@@ -87,13 +102,13 @@ nav: projects
           const validPage = [];
           for (const repo of page) {
             if (!existing.has(repo) || used.has(repo)) continue;
-            validPage.push(repo);
+            validPage.push(repoByName.get(repo));
             used.add(repo);
           }
           if (validPage.length > 0) manualPages.push(validPage.slice(0, PER_PAGE));
         }
 
-        const leftovers = allRepoNames.filter(name => !used.has(name));
+        const leftovers = allRepos.filter(repo => !used.has(repo.name));
         const autoPages = [];
         for (let i = 0; i < leftovers.length; i += PER_PAGE) {
           autoPages.push(leftovers.slice(i, i + PER_PAGE));
@@ -148,8 +163,8 @@ nav: projects
         try {
           const repos = await fetchAllRepos();
           const allRepos = repos
-            .map(repo => repo.name)
-            .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+            .slice()
+            .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
 
           pagedRepos = buildPagedRepos(allRepos);
           currentPage = 1;

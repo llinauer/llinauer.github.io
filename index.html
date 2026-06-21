@@ -59,9 +59,22 @@ nav: home
         return `${THUMBNAIL_BASE}/${repoName}.${ext}`;
       }
 
-      function renderRepoCard(repoName) {
+      function escapeHtml(value = '') {
+        return value
+          .replaceAll('&', '&amp;')
+          .replaceAll('<', '&lt;')
+          .replaceAll('>', '&gt;')
+          .replaceAll('"', '&quot;')
+          .replaceAll("'", '&#39;');
+      }
+
+      function renderRepoCard(repo) {
+        const repoName = repo.name;
         const link = `https://github.com/${USERNAME}/${repoName}`;
         const imgSrc = thumbnailFor(repoName);
+        const description = repo.description
+          ? `<p class="repo-caption">${escapeHtml(repo.description)}</p>`
+          : '';
         return `
           <article class="repo-card">
             <a href="${link}" target="_blank" rel="noreferrer" aria-label="Open ${repoName} on GitHub">
@@ -69,6 +82,7 @@ nav: home
                    onerror="if(!this.dataset.fallback){this.dataset.fallback='png';this.src='${thumbnailFor(repoName, 'png')}';}else{this.onerror=null;this.src='${PLACEHOLDER_THUMB}';}" loading="lazy" />
               <div class="repo-meta">
                 <h3>${repoName}</h3>
+                ${description}
               </div>
             </a>
           </article>
@@ -103,8 +117,10 @@ nav: home
 
         try {
           const repos = await fetchAllRepos();
-          const names = new Set(repos.map(repo => repo.name));
-          const featured = FEATURED_PROJECTS.filter(name => names.has(name));
+          const repoByName = new Map(repos.map(repo => [repo.name, repo]));
+          const featured = FEATURED_PROJECTS
+            .map(name => repoByName.get(name))
+            .filter(Boolean);
 
           grid.innerHTML = featured.map(renderRepoCard).join('');
 
